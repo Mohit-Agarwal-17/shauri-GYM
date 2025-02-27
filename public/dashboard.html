@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Website - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FitLife Gym Dashboard</h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <div class="dashboard-container">
+            <div id="profileFormContainer">
+                <h2>Complete Your Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="16" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dietaryPreference">Dietary Preference</label>
+                        <select id="dietaryPreference" name="dietaryPreference" required>
+                            <option value="">Select an option</option>
+                            <option value="veg">Vegetarian</option>
+                            <option value="nonveg">Non-Vegetarian</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetBodyType">Target Body Type</label>
+                        <select id="targetBodyType" name="targetBodyType" required>
+                            <option value="">Select an option</option>
+                            <option value="lose weight">Lose Weight</option>
+                            <option value="gain muscle">Gain Muscle</option>
+                            <option value="maintain fitness">Maintain Fitness</option>
+                            <option value="increase strength">Increase Strength</option>
+                            <option value="improve flexibility">Improve Flexibility</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Generate Workout Plan</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="workoutPlanContainer" class="hidden">
+                <h2>Your Personalized Workout Plan</h2>
+                <div id="workoutPlanContent" class="workout-plan"></div>
+                <button id="editProfileBtn">Edit Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/profile');
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.profile;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                return false;
+            }
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            const profile = await checkAuth();
+            
+            if (profile) {
+                // Fill form with existing data
+                document.getElementById('name').value = profile.name;
+                document.getElementById('age').value = profile.age;
+                document.getElementById('weight').value = profile.weight;
+                document.getElementById('dietaryPreference').value = profile.dietary_preference;
+                document.getElementById('targetBodyType').value = profile.target_body_type;
+                
+                // Show workout plan if it exists
+                if (profile.workout_plan) {
+                    document.getElementById('workoutPlanContent').innerHTML = profile.workout_plan;
+                    document.getElementById('profileFormContainer').classList.add('hidden');
+                    document.getElementById('workoutPlanContainer').classList.remove('hidden');
+                }
+            }
+        }
+
+        // Handle profile form submission
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                age: parseInt(document.getElementById('age').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                dietaryPreference: document.getElementById('dietaryPreference').value,
+                targetBodyType: document.getElementById('targetBodyType').value
+            };
+            
+            try {
+                const response = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Display workout plan
+                    document.getElementById('workoutPlanContent').innerHTML = data.workoutPlan;
+                    document.getElementById('profileFormContainer').classList.add('hidden');
+                    document.getElementById('workoutPlanContainer').classList.remove('hidden');
+                } else {
+                    alert(data.message || 'Failed to save profile');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Handle edit profile button
+        document.getElementById('editProfileBtn').addEventListener('click', function() {
+            document.getElementById('profileFormContainer').classList.remove('hidden');
+            document.getElementById('workoutPlanContainer').classList.add('hidden');
+        });
+
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await fetch('/api/logout');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // On page load
+        window.addEventListener('load', loadProfile);
+    </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Forms */
+.form-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+/* Dashboard */
+.dashboard-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+#logoutBtn {
+    width: auto;
+    padding: 8px 16px;
+    background-color: #f44336;
+}
+
+#logoutBtn:hover {
+    background-color: #d32f2f;
+}
+
+#editProfileBtn {
+    width: auto;
+    max-width: 200px;
+    margin: 20px auto;
+}
+
+/* Workout Plan */
+.workout-plan {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}
