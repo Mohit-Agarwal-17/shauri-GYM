@@ -1,56 +1,47 @@
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Create a connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'password',
-  database: process.env.DB_NAME || 'gym_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+// MongoDB connection string
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://username:password@cluster0.mongodb.net/gym_db?retryWrites=true&w=majority';
 
-// Initialize database
-async function initDb() {
+// Connect to MongoDB
+async function connectToMongoDB() {
   try {
-    const connection = await pool.getConnection();
-    
-    // Create users table
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) NOT NULL UNIQUE,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create user_profiles table
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS user_profiles (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        age INT NOT NULL,
-        weight FLOAT NOT NULL,
-        dietary_preference ENUM('veg', 'nonveg') NOT NULL,
-        target_body_type VARCHAR(255) NOT NULL,
-        workout_plan TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    connection.release();
-    console.log('Database initialized successfully');
+    await mongoose.connect(MONGODB_URI);
+    console.log('Connected to MongoDB Atlas successfully');
   } catch (error) {
-    console.error('Database initialization failed:', error);
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
   }
 }
 
+// Define User Schema
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  created_at: { type: Date, default: Date.now }
+});
+
+// Define User Profile Schema
+const userProfileSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  name: { type: String, required: true },
+  age: { type: Number, required: true },
+  weight: { type: Number, required: true },
+  dietary_preference: { type: String, required: true, enum: ['veg', 'nonveg'] },
+  target_body_type: { type: String, required: true },
+  workout_plan: { type: String },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+});
+
+// Create models
+const User = mongoose.model('User', userSchema);
+const UserProfile = mongoose.model('UserProfile', userProfileSchema);
+
 module.exports = {
-  pool,
-  initDb
+  connectToMongoDB,
+  User,
+  UserProfile
 };
